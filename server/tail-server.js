@@ -52,6 +52,14 @@ app.use((req, res, next) => {
   next();
 });
 
+// Middleware pour servir les fichiers statiques du frontend
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+// Route pour servir le fichier index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
+
 const PORT = process.env.PORT || 4000;
 const LOG_PATH = process.env.LOG_PATH;
 
