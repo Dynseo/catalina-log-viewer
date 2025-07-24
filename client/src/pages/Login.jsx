@@ -12,7 +12,7 @@ export default function Login({ onLogin }) {
     const credentials = btoa(`${username}:${password}`);
     try {
       // Test de connexion via un appel API
-      const res = await axios.get("http://localhost:4000/api/logs", {
+      const res = await axios.get("http://dev.dynseo.com:4000/api/logs", {
         headers: {
           Authorization: `Basic ${credentials}`,
         },

@@ -30,7 +30,7 @@ if (!process.env.ADMINUSERNAME || !process.env.ADMINPASSWORD) {
 
 // Activer CORS en premier (très important pour les requêtes avec auth)
 app.use(cors({
-  origin: ['http://localhost:5173'], // Ajout des origines autorisées
+  origin: ['http://localhost:3000', 'http://dev.dynseo.com:3000', 'http://localhost:4000'], // Autoriser le frontend
   credentials: true, // Permet l'envoi de credentials
   methods: ['GET', 'POST', 'OPTIONS'], // Méthodes autorisées
   allowedHeaders: ['Content-Type', 'Authorization'], // Headers autorisés
@@ -87,5 +87,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Serveur sur http://localhost:${PORT}`);
+  console.log(`🚀 Serveur sur http://dev.dynseo.com:${PORT}`);
 });

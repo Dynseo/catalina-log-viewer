@@ -62,7 +62,7 @@ export default function LogViewer({ user, search }) {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/logs", { headers });
+        const res = await axios.get("http://dev.dynseo.com:4000/api/logs", { headers });
         setLogs(res.data.content);
       } catch (err) {
         console.error("Erreur chargement logs :", err);
@@ -72,7 +72,7 @@ export default function LogViewer({ user, search }) {
   }, [headers]);
 
   useEffect(() => {
-    const socket = io("http://localhost:4000", { extraHeaders: headers });
+    const socket = io("http://dev.dynseo.com:4000", { extraHeaders: headers });
     socket.on("log", (line) => setLogs((prev) => [...prev, line]));
     return () => socket.disconnect();
   }, [headers]);
