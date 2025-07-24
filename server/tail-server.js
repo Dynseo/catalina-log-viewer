@@ -39,12 +39,12 @@ app.use(cors({
 // Middleware Auth HTTP basique (après CORS)
 app.use((req, res, next) => {
   // Permettre les requêtes OPTIONS (preflight) de passer sans auth
-  if (req.method === 'OPTIONS') {
+  if (req.method === 'OPTIONS' || req.path === '/') {
     return next();
   }
   
   const user = basicAuth(req);
-  console.log('Reçu:', user.name, user.pass, USERS[user.name], process.env.ADMINUSERNAME, process.env.ADMINPASSWORD);
+  console.log('Reçu:', user?.name, user?.pass, USERS[user?.name], process.env.ADMINUSERNAME, process.env.ADMINPASSWORD);
   if (!user || USERS[user.name] !== user.pass) {
     res.set('WWW-Authenticate', 'Basic realm="logs"');
     return res.status(401).send('Authentication required.');
