@@ -60,6 +60,15 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
+// Middleware catch-all pour capturer toutes les routes non définies
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/api') && !req.path.startsWith('/static')) {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  } else {
+    next();
+  }
+});
+
 const PORT = process.env.PORT || 4000;
 const LOG_PATH = process.env.LOG_PATH;
 
