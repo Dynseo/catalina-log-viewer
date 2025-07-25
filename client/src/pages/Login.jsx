@@ -1,10 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -12,14 +14,15 @@ export default function Login({ onLogin }) {
     const credentials = btoa(`${username}:${password}`);
     try {
       // Test de connexion via un appel API
-      const res = await axios.get("http://dev.dynseo.com:4000/api/logs", {
+      const res = await axios.get(import.meta.env.VITE_API_URL + "/api/logs", {
         headers: {
           Authorization: `Basic ${credentials}`,
         },
       });
 
       if (res.status === 200) {
-        onLogin({ username, password }); // on passe les creds au parent
+        onLogin({ username, password });
+        navigate("/logs");
       }
     } catch (err) {
       setError(`Identifiants invalides : ${err.message}`);

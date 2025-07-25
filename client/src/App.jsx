@@ -1,33 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate, Outlet } from "react-router-dom";
 import Login from "./pages/Login";
 import LogViewer from "./pages/LogViewer";
+import Files from "./pages/Files";
 import Layout from "./components/Layout";
 
 function App() {
-  const [user, setUser] = useState(null); // { username, password }
-  const [search, setSearch] = useState("");
-  const [matchIndexes, setMatchIndexes] = useState([]);
-  const [currentMatch, setCurrentMatch] = useState(0);
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
-  const searchProps = {
-    value: search,
-    onChange: setSearch,
-    onNext: () => setCurrentMatch((prev) => (prev + 1) % matchIndexes.length),
-    onPrev: () => setCurrentMatch((prev) => (prev - 1 + matchIndexes.length) % matchIndexes.length),
-    matchIndexes,
-    currentMatch,
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [user]);
+
+  const ProtectedRoute = ({ children }) => {
+    return user ? children : <Navigate to="/login" />;
   };
 
   return (
-    <>
-    {user ? (
-        <Layout searchProps={searchProps}>
-          <LogViewer user={user} search={search} setMatchIndexes={setMatchIndexes} />
-        </Layout>
-      ) : (
-        <Login onLogin={setUser} />
-      )}
-    </>
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={<Navigate to={user ? "/logs" : "/login"} />}
+        />
+        <Route
+          path="/login"
+          element={<Login onLogin={setUser} />}
+        />
+        <Route
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Outlet />
+              </Layout>
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/logs" element={<LogViewer user={user} />} />
+          <Route path="/files" element={<Files />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 

@@ -1,12 +1,14 @@
-import React from "react";
 import SearchBar from "./SearchBar";
+import SideBar from "./SideBar";
 
-function Layout({ children, searchProps }) {
+function Layout({ children }) {
   return (
-    <div>
-      <SearchBar {...searchProps} />
-      <main className="p-6 w-full min-h-[calc(100vh-60px)] bg-gray-200">{children}</main>
-    </div>
+    <>
+      <SideBar />
+      <main className="overflow-y-auto p-6 flex-1 h-screen bg-gray-200">
+        {children}
+      </main>
+    </>
   );
 }
 

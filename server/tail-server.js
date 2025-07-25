@@ -30,7 +30,7 @@ if (!process.env.ADMINUSERNAME || !process.env.ADMINPASSWORD) {
 
 // Activer CORS en premier (très important pour les requêtes avec auth)
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://dev.dynseo.com:3000', 'http://localhost:4000'], // Autoriser le frontend
+  origin: ['http://localhost:5173', 'http://dev.dynseo.com:3000', 'http://localhost:4000'], // Autoriser le frontend
   credentials: true, // Permet l'envoi de credentials
   methods: ['GET', 'POST', 'OPTIONS'], // Méthodes autorisées
   allowedHeaders: ['Content-Type', 'Authorization'], // Headers autorisés
