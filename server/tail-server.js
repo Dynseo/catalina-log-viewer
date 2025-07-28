@@ -77,6 +77,9 @@ app.get('/api/logs', async (req, res) => {
   const fs = await import('fs');
   const readline = await import('readline');
 
+  const start = parseInt(req.query.start, 10) || 0;
+  const limit = parseInt(req.query.limit, 10) || 100;
+
   try {
     const fileStream = fs.createReadStream(LOG_PATH);
     const rl = readline.createInterface({
@@ -85,9 +88,16 @@ app.get('/api/logs', async (req, res) => {
     });
 
     const lines = [];
+    let currentLine = 0;
     for await (const line of rl) {
       if (line.trim()) {
-        lines.push(line);
+        if (currentLine >= start && lines.length < limit) {
+          lines.push(line);
+        }
+        currentLine++;
+        if (lines.length >= limit) {
+          break;
+        }
       }
     }
 

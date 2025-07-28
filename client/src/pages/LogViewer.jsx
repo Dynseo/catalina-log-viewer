@@ -12,6 +12,7 @@ export default function LogViewer({ user }) {
   const [autoScroll, setAutoScroll] = useState(true);
   const [search, setSearch] = useState("");
   const [currentMatch, setCurrentMatch] = useState(0);
+  const [page, setPage] = useState(1);
 
   const searchProps = {
     value: search,
@@ -71,15 +72,19 @@ export default function LogViewer({ user }) {
     }
   };
 
+  const fetchLogs = async (start = 0, limit = 100) => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/logs?start=${start}&limit=${limit}`,
+        { headers }
+      );
+      setLogs(res.data.content);
+    } catch (err) {
+      console.error("Erreur chargement logs :", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchLogs = async () => {
-      try {
-        const res = await axios.get(import.meta.env.VITE_API_URL + "/api/logs", { headers });
-        setLogs(res.data.content);
-      } catch (err) {
-        console.error("Erreur chargement logs :", err);
-      }
-    };
     fetchLogs();
   }, [headers]);
 
@@ -124,25 +129,43 @@ export default function LogViewer({ user }) {
     );
   };
 
+  const handleFetchLogs = (newPage) => {
+    setPage(newPage);
+    const fetchLogs = async () => {
+      try {
+        const start = (newPage - 1) * 100;
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/logs?start=${start}&limit=${100}`,
+          { headers }
+        );
+        setLogs(res.data.content);
+      } catch (err) {
+        console.error("Erreur chargement logs :", err);
+      }
+    };
+    fetchLogs();
+  };
+
   return (
     <div className="p-6 flex flex-col w-full">
       <div className="flex items-center justify-between gap-2 mb-2">
         <LogHeader searchProps={searchProps} />
-        {search && matchIndexes.length > 0 && (
-          <div className="flex items-center gap-2">
-            <button onClick={goToPreviousMatch} className="px-2 rounded border border-gray-300 hover:bg-gray-100">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="black" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15.2084 12.6042L10.0001 7.39584L4.79175 12.6042" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
-              </svg>
-            </button>
-            <span className="text-sm text-gray-700">{currentMatchIndex + 1} / {matchIndexes.length}</span>
-            <button onClick={goToNextMatch} className="px-2 rounded border border-gray-300 hover:bg-gray-100">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="black" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4.79175 7.39584L10.0001 12.6042L15.2084 7.39585" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
-              </svg>
-            </button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleFetchLogs(page - 1)}
+            disabled={page === 1}
+            className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
+          >
+            Précédent
+          </button>
+          <span className="text-sm text-gray-700">Page {page}</span>
+          <button
+            onClick={() => handleFetchLogs(page + 1)}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Suivant
+          </button>
+        </div>
       </div>
 
       <div className="bg-gray-100 rounded-lg p-4">
@@ -175,6 +198,22 @@ export default function LogViewer({ user }) {
           }}
         </List>
       </div>
+
+      {search && matchIndexes.length > 0 && (
+        <div className="flex items-center gap-2 mt-2">
+          <button onClick={goToPreviousMatch} className="px-2 rounded border border-gray-300 hover:bg-gray-100">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="black" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15.2084 12.6042L10.0001 7.39584L4.79175 12.6042" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+            </svg>
+          </button>
+          <span className="text-sm text-gray-700">{currentMatchIndex + 1} / {matchIndexes.length}</span>
+          <button onClick={goToNextMatch} className="px-2 rounded border border-gray-300 hover:bg-gray-100">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="black" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4.79175 7.39584L10.0001 12.6042L15.2084 7.39585" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
