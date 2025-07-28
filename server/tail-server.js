@@ -74,9 +74,28 @@ const LOG_PATH = process.env.LOG_PATH;
 
 // Serve API pour historique (lecture partielle des logs)
 app.get('/api/logs', async (req, res) => {
-  const fs = await import('fs/promises');
-  const logs = await fs.readFile(LOG_PATH, 'utf-8');
-  res.json({ content: logs.split('\n').filter(Boolean) });
+  const fs = await import('fs');
+  const readline = await import('readline');
+
+  try {
+    const fileStream = fs.createReadStream(LOG_PATH);
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity,
+    });
+
+    const lines = [];
+    for await (const line of rl) {
+      if (line.trim()) {
+        lines.push(line);
+      }
+    }
+
+    res.json({ content: lines });
+  } catch (error) {
+    console.error('Erreur lors de la lecture des logs:', error);
+    res.status(500).json({ error: 'Erreur lors de la lecture des logs.' });
+  }
 });
 
 // WebSocket pour logs en direct
